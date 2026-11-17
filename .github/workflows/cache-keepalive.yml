@@ -1,0 +1,78 @@
+name: Keep Cache Alive
+
+# actions/cache 的条目 7 天不访问会被回收。
+# 本仓库只构建 ipq 机型，只保活 ipq-iptables / ipq-nftables 的缓存。
+# cachewrtbuild 生成的缓存 key 形如：
+#   <target><eBPF><Branch>-cache-openwrt-<toolchain-hash>-<timestamp>
+# 注意：缓存匹配是 (key, version)，version 由 path 计算（sha256(paths+压缩+盐)）。
+# path 必须与 cachewrtbuild 保存时完全一致：staging_dir/host*、staging_dir/tool*、
+# .ccache（ccache: 'true'），否则 restore-keys 前缀再对也永远 miss。
+# 参考：qwe3017/Actions-OpenWrt-AN758X/.github/workflows/cache-keepalive.yml
+on:
+  schedule:
+    - cron: '0 0 */5 * *'
+  workflow_dispatch:
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Touch ipq-iptables_eBPF
+        id: ipq_iptables_ebpf
+        continue-on-error: true
+        uses: actions/cache/restore@v5
+        with:
+          key: ipq-iptables_eBPF
+          restore-keys: ipq-iptables_eBPF
+          lookup-only: true
+          path: |
+            staging_dir/host*
+            staging_dir/tool*
+            .ccache
+
+      - name: Touch ipq-iptables
+        id: ipq_iptables
+        continue-on-error: true
+        uses: actions/cache/restore@v5
+        with:
+          key: ipq-iptables
+          restore-keys: ipq-iptables
+          lookup-only: true
+          path: |
+            staging_dir/host*
+            staging_dir/tool*
+            .ccache
+
+      - name: Touch ipq-nftables_eBPF
+        id: ipq_nftables_ebpf
+        continue-on-error: true
+        uses: actions/cache/restore@v5
+        with:
+          key: ipq-nftables_eBPF
+          restore-keys: ipq-nftables_eBPF
+          lookup-only: true
+          path: |
+            staging_dir/host*
+            staging_dir/tool*
+            .ccache
+
+      - name: Touch ipq-nftables
+        id: ipq_nftables
+        continue-on-error: true
+        uses: actions/cache/restore@v5
+        with:
+          key: ipq-nftables
+          restore-keys: ipq-nftables
+          lookup-only: true
+          path: |
+            staging_dir/host*
+            staging_dir/tool*
+            .ccache
+
+      - name: Summary
+        run: |
+          echo "matched cache keys:"
+          echo "  ipq-iptables_eBPF: ${{ steps.ipq_iptables_ebpf.outputs.cache-matched-key }}"
+          echo "  ipq-iptables: ${{ steps.ipq_iptables.outputs.cache-matched-key }}"
+          echo "  ipq-nftables_eBPF: ${{ steps.ipq_nftables_ebpf.outputs.cache-matched-key }}"
+          echo "  ipq-nftables: ${{ steps.ipq_nftables.outputs.cache-matched-key }}"

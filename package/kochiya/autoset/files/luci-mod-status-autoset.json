@@ -1,0 +1,13 @@
+{
+	"luci-mod-status-autoset": {
+		"description": "Grant access to autoset",
+		"read": {
+			"ubus": {
+				"file": [ "exec" ]
+			},
+			"file": {
+				"/usr/libexec/autoset/sysinfo": [ "exec" ]
+			}
+		}
+	}
+}
