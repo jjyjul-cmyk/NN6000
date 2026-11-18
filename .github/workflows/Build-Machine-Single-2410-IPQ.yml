@@ -28,6 +28,7 @@ on:
         - 'aliyun_ap8220-12m'
         - 'jdcloud_re-ss-01'
         - 'jdcloud_re-ss-01-12m'
+        - 'zn_m2'
 
       SFE_BUILDIN:
         description: 'Build sfe'
